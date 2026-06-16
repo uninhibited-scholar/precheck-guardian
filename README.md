@@ -1,0 +1,170 @@
+# 🛡️ PreCheck Guardian
+
+**A pre-execution approval gate for AI agents.** Preview the full plan, see the
+risk of every step, then **approve, reject, or edit — before anything runs.**
+
+[![tests](https://img.shields.io/badge/tests-27%20passing-brightgreen)](#testing)
+[![python](https://img.shields.io/badge/python-3.8%2B-blue)](#install)
+[![license](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+[![deps](https://img.shields.io/badge/core%20deps-0-blueviolet)](#install)
+
+Autonomous agents act fast and don't ask. One `rm -rf`, one `DROP TABLE`, one
+force-push, and the damage is done. PreCheck Guardian inserts a **human-in-the-loop
+checkpoint** between *planning* and *execution*: it parses what the agent is about
+to do, flags the dangerous steps, and waits for a human to sign off.
+
+> **Framework-agnostic.** No dependency on any specific agent framework. It's one
+> function call — wire it into LangChain, a custom ReAct loop, or your own tool
+> runner. Zero required dependencies; `rich`/`questionary` are optional niceties.
+
+---
+
+## See it in 10 seconds
+
+```bash
+pip install precheck-guardian
+python -m approval_hook        # render a sample plan with risk levels
+```
+
+```
+╭───────────────────────── Approval Required ─────────────────────────╮
+│ Demo Plan        🟢 1  🟡 1  🔴 2  ⛔ 2    ⏱ 15s                     │
+╰──────────────────────────────────────────────────────────────────────╯
+  #  Risk      Action                                  Tool
+  1  LOW       SELECT * FROM users WHERE status=...    sql_query
+  3  HIGH      UPDATE accounts SET billed = 1 ...      generic_tool   ⚠ modifies rows
+  4  CRITICAL  DROP TABLE users_staging                sql_query      ⚠ destroys data
+  5  CRITICAL  rm -rf /tmp/build                       file_delete    ⚠ unrecoverable
+  6  HIGH      git push --force origin release         git            ⚠ overwrites history
+```
+
+## Use it in 3 lines
+
+```python
+from approval_hook import ApprovalGuard
+
+guard = ApprovalGuard()
+if guard.is_approved(agent_plan_text):
+    run(agent_plan_text)          # only runs after a human approves
+```
+
+`is_approved` parses the plan, scores each step, prints it, prompts the operator,
+and writes an audit-log entry — all in one call.
+
+---
+
+## What it does
+
+| Capability | Description |
+|---|---|
+| 🧩 **Plan parsing** | Turns free-form agent output (numbered lists, bullets, `Step 1:`…) **or** structured tool calls into typed steps. |
+| 🚦 **Risk scoring** | 55 rule-based detectors across destruction, privilege, system control, RCE/supply-chain, infra, secrets and network. Conservative by design — when unsure, it scores *higher*. |
+| 👤 **Human approval** | Interactive **Approve / Reject / Edit** prompt (`questionary` if installed, plain `input()` otherwise). |
+| 🪜 **Policy gates** | Auto-approve LOW risk, prompt on MEDIUM+, optionally **hard-block CRITICAL**. Safe default: refuse, don't auto-run, when there's no human (CI). |
+| 🔍 **Plan diffing** | Compare a revised plan against the original — unified diff + a clean per-step summary. |
+| 📝 **Audit trail** | Every decision appended to a JSON-Lines log (plan snapshot, max risk, actor, reason) for compliance. Secrets are auto-redacted. |
+| 🔒 **Secret redaction** | Params like `password`, `api_key`, `token` are masked everywhere they're shown or logged. |
+
+---
+
+## Install
+
+```bash
+pip install precheck-guardian            # core, zero dependencies
+pip install "precheck-guardian[all]"     # + rich (pretty tables) + questionary (menus)
+```
+
+Or from source:
+
+```bash
+git clone https://github.com/yourname/precheck-guardian
+cd precheck-guardian
+pip install -e ".[dev]"
+```
+
+---
+
+## How it fits into an agent loop
+
+```
+agent plans  ─▶  PreCheck Guardian  ─▶  approved?  ─▶  execute tools
+                  │  parse                  │  no
+                  │  score risk             └────────▶  abort / replan
+                  │  show to human
+                  └─ record decision
+```
+
+### Structured tool calls
+
+```python
+from approval_hook import ApprovalGuard, ApprovalConfig
+
+guard = ApprovalGuard(ApprovalConfig(block_critical=True, actor="ci-bot"))
+
+decision = guard.review([
+    {"tool": "read_data",  "args": {"path": "/data/in.csv"}, "description": "load input"},
+    {"tool": "file_delete","args": {"path": "/data/in.csv"}, "description": "rm -rf /data/in.csv"},
+])
+
+if decision.proceed:
+    execute(...)
+```
+
+### Tuning the policy
+
+```python
+from approval_hook import ApprovalConfig, RiskLevel
+
+ApprovalConfig(
+    require_above=RiskLevel.LOW,    # prompt for MEDIUM and up (None = always prompt)
+    block_critical=False,           # True = auto-reject CRITICAL, never even ask
+    audit_path="approval_audit.jsonl",
+    actor="alice",
+    non_interactive_default=None,   # what to do with no TTY; None = safe REJECT
+)
+```
+
+### Custom risk rules
+
+```python
+from approval_hook import RiskAnnotator, RiskLevel
+from approval_hook.core.risk_annotator import _rule
+
+annotator = RiskAnnotator()
+annotator.add_rule(_rule("no_prod", r"\bprod\b", RiskLevel.CRITICAL,
+                         "Touches production.", "Use staging instead."))
+guard = ApprovalGuard(annotator=annotator)
+```
+
+---
+
+## Examples
+
+```bash
+python examples/basic_approval.py        # interactive approve/reject/edit
+python examples/with_diff.py             # diff an edited plan vs. the original
+python examples/langchain_style_hook.py  # wire into an agent loop
+```
+
+## Testing
+
+```bash
+pytest          # 27 tests, ~0.05s
+```
+
+---
+
+## Design notes & honest scope
+
+- **Risk scoring is rule-based, not a sandbox.** It's a strong heuristic safety
+  net to surface obvious danger for a human — it is *not* a guarantee that an
+  unflagged step is safe. Keep the human in the loop for anything destructive.
+- **The parser is best-effort.** Unstructured text becomes a single step rather
+  than being silently dropped. For exact fidelity, feed it structured tool calls.
+- **Zero core dependencies on purpose** — easy to vendor, easy to trust.
+
+Contributions of new risk rules, parser formats and framework adapters are welcome.
+
+## License
+
+MIT — see [LICENSE](LICENSE).
