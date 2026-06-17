@@ -81,7 +81,7 @@ pip install "precheck-guardian[all]"     # + rich (pretty tables) + questionary 
 Or from source:
 
 ```bash
-git clone https://github.com/yourname/precheck-guardian
+git clone https://github.com/uninhibited-scholar/precheck-guardian
 cd precheck-guardian
 pip install -e ".[dev]"
 ```

@@ -28,8 +28,8 @@ all = ["rich>=13.0", "questionary>=1.10"]
 dev = ["pytest>=7.0", "rich>=13.0", "questionary>=1.10"]
 
 [project.urls]
-Homepage = "https://github.com/yourname/precheck-guardian"
-Issues = "https://github.com/yourname/precheck-guardian/issues"
+Homepage = "https://github.com/uninhibited-scholar/precheck-guardian"
+Issues = "https://github.com/uninhibited-scholar/precheck-guardian/issues"
 
 [project.scripts]
 precheck = "approval_hook.__main__:main"

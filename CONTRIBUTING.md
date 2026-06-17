@@ -5,7 +5,7 @@ Thanks for helping make agents safer! Contributions of all sizes are welcome.
 ## Development setup
 
 ```bash
-git clone https://github.com/yourname/precheck-guardian
+git clone https://github.com/uninhibited-scholar/precheck-guardian
 cd precheck-guardian
 pip install -e ".[dev]"
 pytest -q
