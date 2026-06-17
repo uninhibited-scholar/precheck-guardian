@@ -8,6 +8,10 @@ risk of every step, then **approve, reject, or edit — before anything runs.**
 [![license](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![deps](https://img.shields.io/badge/core%20deps-0-blueviolet)](#install)
 
+<p align="center">
+  <img src="assets/demo.svg" alt="PreCheck Guardian rendering an agent plan with per-step risk levels and an approve/reject/edit prompt" width="720">
+</p>
+
 Autonomous agents act fast and don't ask. One `rm -rf`, one `DROP TABLE`, one
 force-push, and the damage is done. PreCheck Guardian inserts a **human-in-the-loop
 checkpoint** between *planning* and *execution*: it parses what the agent is about
