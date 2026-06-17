@@ -151,6 +151,58 @@ DEFAULT_RULES: List[RiskRule] = [
     _rule("scp_send", r"\bscp\b|\bnc\b|\bnetcat\b", RiskLevel.MEDIUM,
           "Transferring data over the network.", ""),
 
+    # --- Supply chain / package installs (MEDIUM/HIGH) ---
+    _rule("pip_install", r"\bpip[0-9]?\s+install\b", RiskLevel.MEDIUM,
+          "Installing a Python package runs its setup code.", "Pin the version and verify the source."),
+    _rule("pip_extra_index", r"--(extra-)?index-url\b", RiskLevel.HIGH,
+          "Custom package index — dependency-confusion risk.", "Confirm the index is trusted."),
+    _rule("npm_global", r"\bnpm\s+(install|i)\s+(-g|--global)\b", RiskLevel.MEDIUM,
+          "Global npm install affects the whole machine.", "Prefer a local install."),
+    _rule("npx_run", r"\bnpx\s+", RiskLevel.MEDIUM,
+          "npx downloads and runs a package immediately.", ""),
+    _rule("other_pkg_install", r"\b(gem|cargo|go|brew|apt|apt-get|yum|dnf|pacman)\s+install\b",
+          RiskLevel.MEDIUM, "Installing a system/language package.", ""),
+
+    # --- Obfuscated / covering-tracks (HIGH/CRITICAL) ---
+    _rule("base64_exec", r"\bbase64\s+(-d|--decode)\b.*\|\s*(sh|bash|python)",
+          RiskLevel.CRITICAL, "Decoding then executing data hides what runs.", ""),
+    _rule("fork_bomb", r":\(\)\s*\{\s*:\|:&\s*\}\s*;:", RiskLevel.CRITICAL,
+          "Classic fork bomb — will exhaust the system.", ""),
+    _rule("clear_history", r"\bhistory\s+-c\b|\b>\s*~?/?\.bash_history\b", RiskLevel.MEDIUM,
+          "Clearing shell history can hide actions.", ""),
+    _rule("chattr_immutable", r"\bchattr\s+[+-]i\b", RiskLevel.HIGH,
+          "Changing immutable file attributes.", ""),
+
+    # --- Mass data mutation without a filter (CRITICAL) ---
+    _rule("update_no_where", r"\bUPDATE\s+\w+\s+SET\b(?!.*\bWHERE\b)", RiskLevel.CRITICAL,
+          "UPDATE without a WHERE clause rewrites every row.", "Add a WHERE filter."),
+    _rule("sql_drop_other", r"\bDROP\s+(INDEX|VIEW|TRIGGER|PROCEDURE|FUNCTION)\b",
+          RiskLevel.HIGH, "Dropping a database object.", ""),
+
+    # --- PowerShell / Windows destructive (HIGH/CRITICAL) ---
+    _rule("ps_remove_recurse", r"\bRemove-Item\b.*-Recurse\b.*-Force\b|\bRemove-Item\b.*-Force\b.*-Recurse\b",
+          RiskLevel.CRITICAL, "Recursive forced delete (PowerShell).", ""),
+    _rule("ps_format_volume", r"\bFormat-Volume\b|\bClear-Disk\b", RiskLevel.CRITICAL,
+          "Formatting/clearing a disk (PowerShell).", ""),
+    _rule("ps_stop_computer", r"\b(Stop|Restart)-Computer\b", RiskLevel.HIGH,
+          "Shutting down or restarting (PowerShell).", ""),
+
+    # --- Python file/process operations (MEDIUM/HIGH) ---
+    _rule("py_os_remove", r"\bos\.(remove|unlink|rmdir)\s*\(|\bPath\([^)]*\)\.unlink\b",
+          RiskLevel.HIGH, "Python file deletion.", ""),
+    _rule("py_subprocess", r"\bsubprocess\.(call|run|Popen|check_output)\b", RiskLevel.MEDIUM,
+          "Spawning a subprocess.", ""),
+    _rule("py_requests_write", r"\brequests\.(post|put|patch|delete)\s*\(", RiskLevel.MEDIUM,
+          "State-changing HTTP request (requests).", ""),
+
+    # --- Cloud project / account deletion (CRITICAL) ---
+    _rule("gcloud_delete", r"\bgcloud\s+\w+[\w-]*\s+delete\b|\bgcloud\s+projects\s+delete\b",
+          RiskLevel.CRITICAL, "Deleting a GCP resource/project.", ""),
+    _rule("az_group_delete", r"\baz\s+group\s+delete\b|\baz\s+\w+\s+delete\b", RiskLevel.HIGH,
+          "Deleting an Azure resource/group.", ""),
+    _rule("iam_policy", r"\baws\s+iam\s+(create|attach|put)-", RiskLevel.HIGH,
+          "Modifying IAM policies/permissions.", "Review the policy scope carefully."),
+
     # --- Read-only / benign (LOW) ---
     # These never lower a higher-risk match (the annotator takes the max), but
     # they let obviously read-only steps be auto-approved instead of defaulting

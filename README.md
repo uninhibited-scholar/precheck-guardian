@@ -34,7 +34,7 @@ today force a bad trade-off:
 | Just let the agent run | ❌ | ❌ | ❌ | — |
 | A raw `input("y/n?")` per tool | ❌ (one step at a time) | ❌ | ❌ | manual |
 | Framework-specific approval callback | partial | ❌ | ❌ | locked to one framework |
-| **PreCheck Guardian** | ✅ | ✅ (55 rules) | ✅ (JSON-Lines) | ✅ one call, any framework |
+| **PreCheck Guardian** | ✅ | ✅ (75 rules) | ✅ (JSON-Lines) | ✅ one call, any framework |
 
 You get the **full plan up front**, the **risky steps highlighted**, a real
 **approve / reject / edit** decision, and a compliance-ready **audit log** — in
@@ -81,7 +81,7 @@ and writes an audit-log entry — all in one call.
 | Capability | Description |
 |---|---|
 | 🧩 **Plan parsing** | Turns free-form agent output (numbered lists, bullets, `Step 1:`…) **or** structured tool calls into typed steps. |
-| 🚦 **Risk scoring** | 55 rule-based detectors across destruction, privilege, system control, RCE/supply-chain, infra, secrets and network. Conservative by design — when unsure, it scores *higher*. |
+| 🚦 **Risk scoring** | 75 rule-based detectors across destruction, privilege, system control, RCE/supply-chain, infra, secrets and network. Conservative by design — when unsure, it scores *higher*. |
 | 👤 **Human approval** | Interactive **Approve / Reject / Edit** — inline prompt, or a full-screen **Textual TUI** (optional). |
 | 🪜 **Policy gates** | Auto-approve LOW risk, prompt on MEDIUM+, optionally **hard-block CRITICAL**. Safe default: refuse, don't auto-run, when there's no human (CI). |
 | 🔍 **Plan diffing** | Compare a revised plan against the original — unified diff + a clean per-step summary. |
@@ -241,7 +241,7 @@ python examples/tui_approval.py           # full-screen Textual approval UI (nee
 ## Testing
 
 ```bash
-pytest          # 44 tests, <1s
+pytest          # 61 tests, <1s
 ```
 
 ---

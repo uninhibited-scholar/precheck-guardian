@@ -9,7 +9,7 @@ All notable changes to this project are documented here. The format follows
 ### Added
 - `ApprovalGuard` — one-call entry point: parse → risk-score → display →
   prompt → audit.
-- `RiskAnnotator` with 55 rule-based detectors across destruction, privilege,
+- `RiskAnnotator` with 75 rule-based detectors across destruction, privilege,
   system control, RCE/supply-chain, infrastructure, secrets and network.
 - `PlanParser` for numbered/bulleted agent text and structured tool calls.
 - Policy gates via `ApprovalConfig`: auto-approve LOW, prompt MEDIUM+,
@@ -24,4 +24,4 @@ All notable changes to this project are documented here. The format follows
   pluggable into the guard via `ApprovalGuard(ui=TextualApprovalUI())` (optional
   `[tui]` extra).
 - `python -m approval_hook` demo CLI and runnable `examples/`.
-- 44 tests.
+- 75 risk rules; 61 tests.
