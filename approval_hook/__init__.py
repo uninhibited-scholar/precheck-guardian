@@ -14,6 +14,7 @@ from .core.plan_parser import PlanParser
 from .core.risk_annotator import RiskAnnotator, RiskRule
 from .diff.diff_engine import DiffEngine
 from .guard import ApprovalGuard
+from .integrations import PlanRejected, gate_plan, guard_callable, review_result
 from .models.approval_record import ApprovalRecord, Decision
 from .models.plan import ActionStep, ExecutionPlan, RiskLevel
 
@@ -31,5 +32,10 @@ __all__ = [
     "RiskLevel",
     "Decision",
     "ApprovalRecord",
+    # integrations
+    "gate_plan",
+    "review_result",
+    "guard_callable",
+    "PlanRejected",
     "__version__",
 ]

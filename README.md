@@ -3,7 +3,7 @@
 **A pre-execution approval gate for AI agents.** Preview the full plan, see the
 risk of every step, then **approve, reject, or edit — before anything runs.**
 
-[![tests](https://img.shields.io/badge/tests-27%20passing-brightgreen)](#testing)
+[![tests](https://img.shields.io/badge/tests-35%20passing-brightgreen)](#testing)
 [![python](https://img.shields.io/badge/python-3.8%2B-blue)](#install)
 [![license](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![deps](https://img.shields.io/badge/core%20deps-0-blueviolet)](#install)
@@ -124,6 +124,23 @@ ApprovalConfig(
 )
 ```
 
+### One-line decorators
+
+Add a checkpoint without restructuring code:
+
+```python
+from approval_hook import gate_plan, review_result, guard_callable
+
+@gate_plan("plan")               # review the plan passed in; skip body if rejected
+def execute(plan): ...
+
+@review_result()                 # review what the function returns; raise if rejected
+def make_plan() -> str: ...
+
+# wrap a single dangerous tool — every call is reviewed (works with LangChain Tool(func=...))
+safe_delete = guard_callable(delete_file, tool_name="delete_file")
+```
+
 ### Custom risk rules
 
 ```python
@@ -144,12 +161,13 @@ guard = ApprovalGuard(annotator=annotator)
 python examples/basic_approval.py        # interactive approve/reject/edit
 python examples/with_diff.py             # diff an edited plan vs. the original
 python examples/langchain_style_hook.py  # wire into an agent loop
+python examples/decorator_gate.py        # one-line decorator + per-tool gating
 ```
 
 ## Testing
 
 ```bash
-pytest          # 27 tests, ~0.05s
+pytest          # 35 tests, ~0.07s
 ```
 
 ---
