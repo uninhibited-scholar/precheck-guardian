@@ -18,5 +18,7 @@ All notable changes to this project are documented here. The format follows
 - JSON-Lines audit log with automatic secret redaction.
 - Optional `rich` table rendering and `questionary` menus; zero required deps.
 - Integrations: `gate_plan`, `review_result`, `guard_callable` decorators.
+- LangChain integration: `guard_langchain_tool` wraps any LangChain tool into
+  an approval-gated drop-in replacement (optional `[langchain]` extra).
 - `python -m approval_hook` demo CLI and runnable `examples/`.
-- 35 tests.
+- 39 tests.

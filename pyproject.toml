@@ -24,6 +24,7 @@ dependencies = []
 [project.optional-dependencies]
 rich = ["rich>=13.0"]
 interactive = ["questionary>=1.10"]
+langchain = ["langchain-core>=0.3"]  # Python 3.10+
 all = ["rich>=13.0", "questionary>=1.10"]
 dev = ["pytest>=7.0", "rich>=13.0", "questionary>=1.10"]
 

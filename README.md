@@ -3,7 +3,7 @@
 **A pre-execution approval gate for AI agents.** Preview the full plan, see the
 risk of every step, then **approve, reject, or edit — before anything runs.**
 
-[![tests](https://img.shields.io/badge/tests-35%20passing-brightgreen)](#testing)
+[![tests](https://img.shields.io/badge/tests-39%20passing-brightgreen)](#testing)
 [![python](https://img.shields.io/badge/python-3.8%2B-blue)](#install)
 [![license](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![deps](https://img.shields.io/badge/core%20deps-0-blueviolet)](#install)
@@ -145,6 +145,26 @@ def make_plan() -> str: ...
 safe_delete = guard_callable(delete_file, tool_name="delete_file")
 ```
 
+### LangChain
+
+Wrap any LangChain tool so every call is reviewed first — a drop-in replacement
+that keeps the tool's name, description and argument schema:
+
+```python
+from langchain_core.tools import tool
+from approval_hook.integrations.langchain import guard_langchain_tool
+
+@tool
+def delete_path(path: str) -> str:
+    """Delete a file or directory."""
+    ...
+
+safe_delete = guard_langchain_tool(delete_path)   # give the agent this instead
+# safe_delete.invoke({"path": "rm -rf /data"}) -> shown for approval / blocked
+```
+
+Install the optional extra: `pip install "precheck-guardian[langchain]"` (Python 3.10+).
+
 ### Custom risk rules
 
 ```python
@@ -166,12 +186,13 @@ python examples/basic_approval.py        # interactive approve/reject/edit
 python examples/with_diff.py             # diff an edited plan vs. the original
 python examples/langchain_style_hook.py  # wire into an agent loop
 python examples/decorator_gate.py        # one-line decorator + per-tool gating
+python examples/langchain_real.py        # gate a real LangChain tool (needs langchain-core)
 ```
 
 ## Testing
 
 ```bash
-pytest          # 35 tests, ~0.07s
+pytest          # 39 tests, ~0.09s
 ```
 
 ---
