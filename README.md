@@ -3,6 +3,14 @@
 **A pre-execution approval gate for AI agents.** Preview the full plan, see the
 risk of every step, then **approve, reject, or edit — before anything runs.**
 
+> 🧩 **Part of the Agent Control Plane** — three small, zero-dependency, framework-agnostic libraries for keeping a human in control across an agent's whole lifecycle. Each works standalone; together they cover **plan → run → intervene**.
+>
+> | Stage | Library | What it does |
+> | --- | --- | --- |
+> | **Before** a step runs ← *you are here* | **precheck-guardian** | Preview the plan, see per-step risk, approve / reject / edit |
+> | **During** the run | [something-else](https://github.com/uninhibited-scholar/something-else) | Interject, pause, or guard a live loop without restarting |
+> | **The loop engine** | [loop-runtime](https://github.com/uninhibited-scholar/loop-runtime) | Budget circuit-breakers, maker/checker, worktree isolation, human gates |
+
 [![PyPI](https://img.shields.io/pypi/v/precheck-guardian)](https://pypi.org/project/precheck-guardian/)
 [![CI](https://github.com/uninhibited-scholar/precheck-guardian/actions/workflows/ci.yml/badge.svg)](https://github.com/uninhibited-scholar/precheck-guardian/actions/workflows/ci.yml)
 [![python](https://img.shields.io/badge/python-3.8%2B-blue)](#install)
