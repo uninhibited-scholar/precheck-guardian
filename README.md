@@ -3,7 +3,7 @@
 **A pre-execution approval gate for AI agents.** Preview the full plan, see the
 risk of every step, then **approve, reject, or edit — before anything runs.**
 
-[![tests](https://img.shields.io/badge/tests-44%20passing-brightgreen)](#testing)
+[![CI](https://github.com/uninhibited-scholar/precheck-guardian/actions/workflows/ci.yml/badge.svg)](https://github.com/uninhibited-scholar/precheck-guardian/actions/workflows/ci.yml)
 [![python](https://img.shields.io/badge/python-3.8%2B-blue)](#install)
 [![license](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![deps](https://img.shields.io/badge/core%20deps-0-blueviolet)](#install)
@@ -20,6 +20,25 @@ to do, flags the dangerous steps, and waits for a human to sign off.
 > **Framework-agnostic.** No dependency on any specific agent framework. It's one
 > function call — wire it into LangChain, a custom ReAct loop, or your own tool
 > runner. Zero required dependencies; `rich`/`questionary` are optional niceties.
+
+---
+
+## Why this exists
+
+As agents get more autonomous, the gap between *"here's what I'll do"* and
+*"...and it's already done"* gets dangerous. Most "human-in-the-loop" options
+today force a bad trade-off:
+
+| Approach | Sees the **whole plan** first? | Per-step **risk scoring**? | **Audit** trail? | Drop-in? |
+|---|:---:|:---:|:---:|:---:|
+| Just let the agent run | ❌ | ❌ | ❌ | — |
+| A raw `input("y/n?")` per tool | ❌ (one step at a time) | ❌ | ❌ | manual |
+| Framework-specific approval callback | partial | ❌ | ❌ | locked to one framework |
+| **PreCheck Guardian** | ✅ | ✅ (55 rules) | ✅ (JSON-Lines) | ✅ one call, any framework |
+
+You get the **full plan up front**, the **risky steps highlighted**, a real
+**approve / reject / edit** decision, and a compliance-ready **audit log** — in
+one call, with zero required dependencies.
 
 ---
 
@@ -205,6 +224,7 @@ python examples/with_diff.py             # diff an edited plan vs. the original
 python examples/langchain_style_hook.py  # wire into an agent loop
 python examples/decorator_gate.py        # one-line decorator + per-tool gating
 python examples/langchain_real.py        # gate a real LangChain tool (needs langchain-core)
+python examples/agent_workflow.py         # end-to-end multi-step agent; destructive step blocked
 python examples/tui_approval.py           # full-screen Textual approval UI (needs textual)
 ```
 
