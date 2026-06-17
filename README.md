@@ -3,6 +3,7 @@
 **A pre-execution approval gate for AI agents.** Preview the full plan, see the
 risk of every step, then **approve, reject, or edit — before anything runs.**
 
+[![PyPI](https://img.shields.io/pypi/v/precheck-guardian)](https://pypi.org/project/precheck-guardian/)
 [![CI](https://github.com/uninhibited-scholar/precheck-guardian/actions/workflows/ci.yml/badge.svg)](https://github.com/uninhibited-scholar/precheck-guardian/actions/workflows/ci.yml)
 [![python](https://img.shields.io/badge/python-3.8%2B-blue)](#install)
 [![license](https://img.shields.io/badge/license-MIT-green)](LICENSE)
@@ -92,19 +93,9 @@ and writes an audit-log entry — all in one call.
 
 ## Install
 
-Available now, straight from GitHub (zero core dependencies):
-
 ```bash
-pip install "git+https://github.com/uninhibited-scholar/precheck-guardian"
-# with optional extras (rich tables, questionary menus, Textual TUI):
-pip install "precheck-guardian[all] @ git+https://github.com/uninhibited-scholar/precheck-guardian"
-```
-
-Once published to PyPI, this becomes simply:
-
-```bash
-pip install precheck-guardian
-pip install "precheck-guardian[all]"
+pip install precheck-guardian            # core, zero dependencies
+pip install "precheck-guardian[all]"     # + rich tables, questionary menus, Textual TUI
 ```
 
 Or from a local clone (for development):
