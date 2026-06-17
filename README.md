@@ -92,12 +92,22 @@ and writes an audit-log entry — all in one call.
 
 ## Install
 
+Available now, straight from GitHub (zero core dependencies):
+
 ```bash
-pip install precheck-guardian            # core, zero dependencies
-pip install "precheck-guardian[all]"     # + rich (pretty tables) + questionary (menus)
+pip install "git+https://github.com/uninhibited-scholar/precheck-guardian"
+# with optional extras (rich tables, questionary menus, Textual TUI):
+pip install "precheck-guardian[all] @ git+https://github.com/uninhibited-scholar/precheck-guardian"
 ```
 
-Or from source:
+Once published to PyPI, this becomes simply:
+
+```bash
+pip install precheck-guardian
+pip install "precheck-guardian[all]"
+```
+
+Or from a local clone (for development):
 
 ```bash
 git clone https://github.com/uninhibited-scholar/precheck-guardian
