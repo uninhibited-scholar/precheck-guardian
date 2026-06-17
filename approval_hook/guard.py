@@ -104,9 +104,21 @@ class ApprovalGuard:
             return plan
         if isinstance(plan, str):
             return self.parser.parse(plan, title=title)
+        if isinstance(plan, dict):
+            # A chat-completion response or assistant message with tool calls.
+            return self.parser.parse_tool_call_trace(plan, title=title)
         if isinstance(plan, list):
+            if any(self._is_native_call(x) for x in plan):
+                return self.parser.parse_tool_call_trace(plan, title=title)
             return self.parser.parse_tool_calls(plan, title=title)
         raise TypeError(f"Unsupported plan type: {type(plan).__name__}")
+
+    @staticmethod
+    def _is_native_call(item: Any) -> bool:
+        """Detect OpenAI/LangChain-native tool-call shapes (vs. our simple dict)."""
+        return isinstance(item, dict) and (
+            "function" in item or "tool_calls" in item or item.get("type") == "function"
+        )
 
     def _finalise(self, plan: ExecutionPlan, decision: Decision, *, reason: str) -> Decision:
         if self.audit is not None:

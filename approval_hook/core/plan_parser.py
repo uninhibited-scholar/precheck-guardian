@@ -12,6 +12,7 @@ approval gate never silently drops work.
 
 from __future__ import annotations
 
+import json
 import re
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -100,7 +101,72 @@ class PlanParser:
         self.annotator.annotate_plan(plan)
         return plan
 
+    def parse_tool_call_trace(
+        self, trace: Any, *, title: str = "Agent Execution Plan"
+    ) -> ExecutionPlan:
+        """Parse a native OpenAI / LangChain tool-call trace into a plan.
+
+        Accepts the shapes agents actually emit, so you can hand the raw thing
+        straight from the API to the guard:
+
+        * a list of OpenAI tool-call dicts
+          ``[{"type": "function", "function": {"name": ..., "arguments": "{...}"}}]``
+          (``arguments`` may be a JSON string or an already-parsed dict)
+        * a single assistant message dict containing ``tool_calls``
+        * a full chat-completion response dict (``choices[].message.tool_calls``)
+        * a list of chat messages (tool calls are gathered from every assistant
+          message, in order)
+        * LangChain-style ``[{"name": ..., "args": {...}}]``
+        """
+        normalized = [self._normalize_call(tc) for tc in self._collect_calls(trace)]
+        return self.parse_tool_calls(normalized, title=title)
+
     # -- internals ----------------------------------------------------------
+    def _collect_calls(self, trace: Any) -> List[Dict[str, Any]]:
+        """Dig tool calls out of whatever container shape was passed."""
+        if isinstance(trace, dict):
+            if "choices" in trace:  # full chat-completion response
+                calls: List[Dict[str, Any]] = []
+                for choice in trace.get("choices", []):
+                    msg = choice.get("message", {})
+                    calls.extend(msg.get("tool_calls") or [])
+                return calls
+            if "tool_calls" in trace:  # a single assistant message
+                return list(trace.get("tool_calls") or [])
+            if "message" in trace:
+                return list(trace["message"].get("tool_calls") or [])
+            return [trace]  # assume it's already a single call
+        if isinstance(trace, list):
+            # Either a list of messages, or a list of tool-call dicts.
+            if any(isinstance(x, dict) and "tool_calls" in x for x in trace):
+                calls = []
+                for msg in trace:
+                    if isinstance(msg, dict):
+                        calls.extend(msg.get("tool_calls") or [])
+                return calls
+            return list(trace)
+        return []
+
+    @staticmethod
+    def _normalize_call(tc: Dict[str, Any]) -> Dict[str, Any]:
+        """Reduce one tool call (OpenAI or LangChain shape) to {tool, args}."""
+        fn = tc.get("function", tc) if isinstance(tc, dict) else {}
+        name = fn.get("name") or tc.get("name") or tc.get("tool") or "generic_tool"
+        raw = fn.get("arguments")
+        if raw is None:
+            raw = tc.get("args") or tc.get("arguments") or {}
+        if isinstance(raw, str):
+            try:
+                args = json.loads(raw) if raw.strip() else {}
+            except (json.JSONDecodeError, ValueError):
+                args = {"_raw": raw}
+        elif isinstance(raw, dict):
+            args = raw
+        else:
+            args = {"value": raw}
+        return {"tool": name, "args": args, "description": f"{name}({args})"}
+
+
     def _extract_steps(self, text: str) -> List[ActionStep]:
         steps: List[ActionStep] = []
         counter = 0

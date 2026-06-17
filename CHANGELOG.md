@@ -11,7 +11,8 @@ All notable changes to this project are documented here. The format follows
   prompt → audit.
 - `RiskAnnotator` with 75 rule-based detectors across destruction, privilege,
   system control, RCE/supply-chain, infrastructure, secrets and network.
-- `PlanParser` for numbered/bulleted agent text and structured tool calls.
+- `PlanParser` for numbered/bulleted agent text, structured tool calls, and
+  native OpenAI/LangChain tool-call traces (`parse_tool_call_trace`).
 - Policy gates via `ApprovalConfig`: auto-approve LOW, prompt MEDIUM+,
   optional hard-block of CRITICAL, safe REJECT default with no TTY.
 - `DiffEngine` — unified diff and per-step change summary between two plans.
@@ -24,4 +25,4 @@ All notable changes to this project are documented here. The format follows
   pluggable into the guard via `ApprovalGuard(ui=TextualApprovalUI())` (optional
   `[tui]` extra).
 - `python -m approval_hook` demo CLI and runnable `examples/`.
-- 75 risk rules; 61 tests.
+- 75 risk rules; 67 tests.

@@ -143,6 +143,19 @@ if decision.proceed:
     execute(...)
 ```
 
+### Native OpenAI / LangChain tool-call traces
+
+Already have a raw tool-call trace from the model? Hand it over as-is — the
+guard detects the shape and parses it (OpenAI `arguments` JSON strings included):
+
+```python
+# an OpenAI chat-completion response, an assistant message, a message list,
+# or a list of tool-call dicts — all work:
+guard.review(openai_response)
+guard.review([{"type": "function",
+               "function": {"name": "run_sql", "arguments": '{"statement": "DROP TABLE t"}'}}])
+```
+
 ### Tuning the policy
 
 ```python
@@ -241,7 +254,7 @@ python examples/tui_approval.py           # full-screen Textual approval UI (nee
 ## Testing
 
 ```bash
-pytest          # 61 tests, <1s
+pytest          # 67 tests, <1s
 ```
 
 ---
