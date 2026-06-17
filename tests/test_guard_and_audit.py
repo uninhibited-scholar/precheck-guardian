@@ -73,6 +73,27 @@ def test_secrets_are_redacted_in_snapshot(tmp_path):
     assert "redacted" in raw
 
 
+class FullUI:
+    """A UI that renders the plan itself (like the TUI)."""
+
+    def __init__(self, decision):
+        self.decision = decision
+        self.got_plan = None
+
+    def render_and_prompt(self, plan):
+        self.got_plan = plan
+        return self.decision
+
+
+def test_full_ui_render_and_prompt_is_used(tmp_path):
+    ui = FullUI(Decision.EDIT)
+    guard = ApprovalGuard(ApprovalConfig(audit_path=None), ui=ui)
+    decision = guard.review("1. rm -rf /tmp/x")
+    assert decision is Decision.EDIT
+    assert ui.got_plan is not None
+    assert ui.got_plan.max_risk is RiskLevel.CRITICAL
+
+
 def test_is_approved_boolean_wrapper():
     guard = ApprovalGuard(ApprovalConfig(audit_path=None), ui=FakeUI(Decision.REJECT))
     assert guard.is_approved("1. rm -rf /", force_plain=True) is False

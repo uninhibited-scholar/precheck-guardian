@@ -20,5 +20,8 @@ All notable changes to this project are documented here. The format follows
 - Integrations: `gate_plan`, `review_result`, `guard_callable` decorators.
 - LangChain integration: `guard_langchain_tool` wraps any LangChain tool into
   an approval-gated drop-in replacement (optional `[langchain]` extra).
+- Textual TUI: `TextualApprovalUI` — a full-screen approve/edit/reject screen,
+  pluggable into the guard via `ApprovalGuard(ui=TextualApprovalUI())` (optional
+  `[tui]` extra).
 - `python -m approval_hook` demo CLI and runnable `examples/`.
-- 39 tests.
+- 44 tests.

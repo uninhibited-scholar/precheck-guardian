@@ -3,7 +3,7 @@
 **A pre-execution approval gate for AI agents.** Preview the full plan, see the
 risk of every step, then **approve, reject, or edit — before anything runs.**
 
-[![tests](https://img.shields.io/badge/tests-39%20passing-brightgreen)](#testing)
+[![tests](https://img.shields.io/badge/tests-44%20passing-brightgreen)](#testing)
 [![python](https://img.shields.io/badge/python-3.8%2B-blue)](#install)
 [![license](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![deps](https://img.shields.io/badge/core%20deps-0-blueviolet)](#install)
@@ -63,7 +63,7 @@ and writes an audit-log entry — all in one call.
 |---|---|
 | 🧩 **Plan parsing** | Turns free-form agent output (numbered lists, bullets, `Step 1:`…) **or** structured tool calls into typed steps. |
 | 🚦 **Risk scoring** | 55 rule-based detectors across destruction, privilege, system control, RCE/supply-chain, infra, secrets and network. Conservative by design — when unsure, it scores *higher*. |
-| 👤 **Human approval** | Interactive **Approve / Reject / Edit** prompt (`questionary` if installed, plain `input()` otherwise). |
+| 👤 **Human approval** | Interactive **Approve / Reject / Edit** — inline prompt, or a full-screen **Textual TUI** (optional). |
 | 🪜 **Policy gates** | Auto-approve LOW risk, prompt on MEDIUM+, optionally **hard-block CRITICAL**. Safe default: refuse, don't auto-run, when there's no human (CI). |
 | 🔍 **Plan diffing** | Compare a revised plan against the original — unified diff + a clean per-step summary. |
 | 📝 **Audit trail** | Every decision appended to a JSON-Lines log (plan snapshot, max risk, actor, reason) for compliance. Secrets are auto-redacted. |
@@ -165,6 +165,24 @@ safe_delete = guard_langchain_tool(delete_path)   # give the agent this instead
 
 Install the optional extra: `pip install "precheck-guardian[langchain]"` (Python 3.10+).
 
+### Full-screen TUI
+
+Prefer a richer review screen? Swap in the Textual UI — same guard, same audit log:
+
+```python
+from approval_hook import ApprovalGuard
+from approval_hook.ui.tui import TextualApprovalUI
+
+guard = ApprovalGuard(ui=TextualApprovalUI())
+guard.review(agent_plan)     # opens an interactive approval screen
+```
+
+<p align="center">
+  <img src="assets/tui_demo.svg" alt="The PreCheck Guardian Textual TUI showing a 5-step plan with per-step risk levels and Approve/Edit/Reject buttons" width="760">
+</p>
+
+Install the optional extra: `pip install "precheck-guardian[tui]"` (Python 3.9+).
+
 ### Custom risk rules
 
 ```python
@@ -187,12 +205,13 @@ python examples/with_diff.py             # diff an edited plan vs. the original
 python examples/langchain_style_hook.py  # wire into an agent loop
 python examples/decorator_gate.py        # one-line decorator + per-tool gating
 python examples/langchain_real.py        # gate a real LangChain tool (needs langchain-core)
+python examples/tui_approval.py           # full-screen Textual approval UI (needs textual)
 ```
 
 ## Testing
 
 ```bash
-pytest          # 39 tests, ~0.09s
+pytest          # 44 tests, <1s
 ```
 
 ---

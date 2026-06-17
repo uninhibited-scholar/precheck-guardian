@@ -22,9 +22,9 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -e ".[dev]"
-      - name: Install optional LangChain integration (Python 3.10+)
+      - name: Install optional integrations (Python 3.10+)
         if: matrix.python-version != '3.8' && matrix.python-version != '3.9'
-        run: pip install langchain-core
+        run: pip install langchain-core textual pytest-asyncio
       - name: Run tests
         run: pytest -q
       - name: Smoke-test the CLI

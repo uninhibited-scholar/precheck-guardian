@@ -78,8 +78,13 @@ class ApprovalGuard:
                 execution_plan, Decision.APPROVE, reason="auto-approved: low risk"
             )
 
-        formatter.render(execution_plan, force_plain=force_plain)
-        decision = self.ui.prompt_approval()
+        # A "full" UI (e.g. the Textual TUI) renders the plan itself; otherwise
+        # we render with the formatter and use the simple prompt.
+        if hasattr(self.ui, "render_and_prompt"):
+            decision = self.ui.render_and_prompt(execution_plan)
+        else:
+            formatter.render(execution_plan, force_plain=force_plain)
+            decision = self.ui.prompt_approval()
         return self._finalise(execution_plan, decision, reason="operator decision")
 
     def is_approved(self, plan: Union[str, ExecutionPlan, List[Dict[str, Any]]], **kw) -> bool:

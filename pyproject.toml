@@ -25,7 +25,8 @@ dependencies = []
 rich = ["rich>=13.0"]
 interactive = ["questionary>=1.10"]
 langchain = ["langchain-core>=0.3"]  # Python 3.10+
-all = ["rich>=13.0", "questionary>=1.10"]
+tui = ["textual>=0.40"]              # Python 3.9+
+all = ["rich>=13.0", "questionary>=1.10", "textual>=0.40"]
 dev = ["pytest>=7.0", "rich>=13.0", "questionary>=1.10"]
 
 [project.urls]
@@ -40,6 +41,7 @@ include = ["approval_hook*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+asyncio_mode = "auto"
 
 [tool.ruff]
 line-length = 100
