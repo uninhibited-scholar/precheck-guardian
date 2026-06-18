@@ -4,6 +4,13 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/), and the project adheres to
 [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Added
+- `precheck audit --summary [--limit N] [--path FILE]` — CLI report over the
+  JSON-Lines approval log (totals, approval rate, breakdown by max risk, recent
+  decisions). Backing helper `summarize_records()` is importable.
+
 ## [0.1.0] — 2026-06-17
 
 ### Added

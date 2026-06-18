@@ -238,6 +238,28 @@ guard = ApprovalGuard(annotator=annotator)
 
 ---
 
+### Audit log & reporting
+
+Every decision is appended to a JSON-Lines log. Summarise it from the CLI:
+
+```bash
+precheck audit --summary --limit 5
+```
+
+```
+Audit summary — approval_audit.jsonl
+  total decisions : 128
+  approved        : 119
+  rejected        : 9
+  approval rate   : 93%
+  by max risk     :
+    🟢 low 71   🟡 medium 33   🔴 high 18   ⛔ critical 6
+```
+
+Or in code: `from approval_hook.audit.logger import summarize_records`.
+
+---
+
 ## Examples
 
 ```bash

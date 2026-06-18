@@ -4,10 +4,30 @@ from __future__ import annotations
 
 import json
 import os
+from collections import Counter
 from pathlib import Path
-from typing import Iterator, List
+from typing import Any, Dict, Iterator, List
 
 from ..models.approval_record import ApprovalRecord
+
+
+def summarize_records(records: List[Dict[str, Any]]) -> Dict[str, Any]:
+    """Aggregate audit records into headline stats for reporting.
+
+    Returns counts by decision and by max-risk level, plus the number of
+    blocked (rejected) plans and the approval rate.
+    """
+    total = len(records)
+    by_decision = Counter(r.get("decision", "unknown") for r in records)
+    by_risk = Counter(r.get("max_risk", "unknown") for r in records)
+    approved = by_decision.get("approve", 0)
+    return {
+        "total": total,
+        "by_decision": dict(by_decision),
+        "by_risk": dict(by_risk),
+        "blocked": by_decision.get("reject", 0),
+        "approval_rate": (approved / total) if total else 0.0,
+    }
 
 
 class AuditLogger:
