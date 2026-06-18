@@ -18,7 +18,7 @@ from .integrations import PlanRejected, gate_plan, guard_callable, review_result
 from .models.approval_record import ApprovalRecord, Decision
 from .models.plan import ActionStep, ExecutionPlan, RiskLevel
 
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 
 __all__ = [
     "ApprovalGuard",
