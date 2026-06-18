@@ -7,6 +7,11 @@ All notable changes to this project are documented here. The format follows
 ## [Unreleased]
 
 ### Added
+- `precheck check <files...>` — lint script/SQL/shell files (or stdin via `-`)
+  for dangerous lines; flags MEDIUM+ risk with the matched rule names and exits
+  non-zero at/above `--fail-on` (default HIGH). Scans multiple files, supports
+  `--rules` for a custom config, and ships a `.pre-commit-hooks.yaml` so any
+  repo can use it as a pre-commit hook. Importable helper `scan_text()`.
 - Custom risk rules from a config file: `RiskAnnotator.from_file()` (JSON via
   stdlib, YAML via the optional `[yaml]` extra) and `from_config()`, with
   `extend`/`replace` modes. Helpers `load_rules_config()` and `rule_from_dict()`

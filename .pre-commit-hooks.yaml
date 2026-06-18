@@ -1,0 +1,15 @@
+# Lets other repos use PreCheck Guardian as a pre-commit hook:
+#
+#   # .pre-commit-config.yaml in your repo
+#   - repo: https://github.com/uninhibited-scholar/precheck-guardian
+#     rev: v0.1.1
+#     hooks:
+#       - id: precheck
+#         args: ["--fail-on", "critical"]
+- id: precheck
+  name: PreCheck Guardian (scan for dangerous commands)
+  description: Flags risky lines (rm -rf, DROP TABLE, curl|sh, chmod 777, ...) in changed files.
+  entry: precheck check
+  language: python
+  types: [text]
+  pass_filenames: true

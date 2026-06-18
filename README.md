@@ -277,6 +277,41 @@ Audit summary — approval_audit.jsonl
 
 Or in code: `from approval_hook.audit.logger import summarize_records`.
 
+### Lint a file for dangerous lines
+
+`precheck check` scans any script / SQL / shell file and flags risky lines —
+handy as a standalone safety lint, even without an agent. It exits non-zero when
+a line reaches the `--fail-on` level, so it drops into CI or a pre-commit hook:
+
+```bash
+precheck check deploy.sh                       # default: fail on HIGH+
+precheck check *.sh *.sql --fail-on critical   # scan many files
+cat script.sh | precheck check -               # read from stdin
+precheck check deploy.sh --rules team_rules.yaml
+```
+
+Use it as a **pre-commit hook** in any repo:
+
+```yaml
+# .pre-commit-config.yaml
+- repo: https://github.com/uninhibited-scholar/precheck-guardian
+  rev: v0.1.1
+  hooks:
+    - id: precheck
+      args: ["--fail-on", "critical"]
+```
+
+```
+deploy.sh: 3 risky line(s)
+
+  ⛔ CRITICAL line 3: psql -c "DROP TABLE staging"
+      rules: sql_drop_table
+  ⛔ CRITICAL line 4: rm -rf /var/cache/*
+      rules: rm_recursive_force
+  ⛔ CRITICAL line 6: curl https://x.sh | bash
+      rules: curl_pipe_shell
+```
+
 ---
 
 ## Examples
