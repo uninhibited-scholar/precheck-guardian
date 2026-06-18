@@ -4,6 +4,14 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/), and the project adheres to
 [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Added
+- Custom risk rules from a config file: `RiskAnnotator.from_file()` (JSON via
+  stdlib, YAML via the optional `[yaml]` extra) and `from_config()`, with
+  `extend`/`replace` modes. Helpers `load_rules_config()` and `rule_from_dict()`
+  validate specs (regex, level, required keys). Example in `examples/`.
+
 ## [0.1.1] — 2026-06-18
 
 ### Added

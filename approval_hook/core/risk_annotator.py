@@ -11,9 +11,11 @@ rather than hide it.
 
 from __future__ import annotations
 
+import json
 import re
 from dataclasses import dataclass
-from typing import Dict, List, Pattern
+from pathlib import Path
+from typing import Any, Dict, List, Pattern, Union
 
 from ..models.plan import ActionStep, RiskLevel
 
@@ -31,6 +33,57 @@ class RiskRule:
 
 def _rule(name: str, regex: str, level: RiskLevel, warning: str, mitigation: str = "") -> RiskRule:
     return RiskRule(name, re.compile(regex, re.IGNORECASE), level, warning, mitigation)
+
+
+def _coerce_level(value: Union[str, RiskLevel]) -> RiskLevel:
+    if isinstance(value, RiskLevel):
+        return value
+    try:
+        return RiskLevel[str(value).strip().upper()]
+    except KeyError as exc:
+        valid = ", ".join(level_.label for level_ in RiskLevel)
+        raise ValueError(f"unknown risk level {value!r}; expected one of: {valid}") from exc
+
+
+def rule_from_dict(spec: Dict[str, Any]) -> RiskRule:
+    """Build a :class:`RiskRule` from a plain dict (e.g. parsed YAML/JSON).
+
+    Required keys: ``name``, ``pattern``, ``level``. Optional: ``warning``,
+    ``mitigation``.
+    """
+    missing = [k for k in ("name", "pattern", "level") if k not in spec]
+    if missing:
+        raise ValueError(f"rule is missing required key(s): {', '.join(missing)}")
+    try:
+        pattern = re.compile(spec["pattern"], re.IGNORECASE)
+    except re.error as exc:
+        raise ValueError(f"rule {spec['name']!r} has an invalid regex: {exc}") from exc
+    return RiskRule(
+        name=str(spec["name"]),
+        pattern=pattern,
+        level=_coerce_level(spec["level"]),
+        warning=str(spec.get("warning", "")),
+        mitigation=str(spec.get("mitigation", "")),
+    )
+
+
+def load_rules_config(config: Dict[str, Any]) -> List[RiskRule]:
+    """Turn a config mapping into a list of rules.
+
+    Shape::
+
+        {"mode": "extend" | "replace",   # default "extend"
+         "rules": [ {name, pattern, level, warning?, mitigation?}, ... ]}
+
+    ``extend`` appends to the built-in catalogue; ``replace`` uses only the
+    custom rules.
+    """
+    mode = config.get("mode", "extend")
+    if mode not in ("extend", "replace"):
+        raise ValueError(f"mode must be 'extend' or 'replace', got {mode!r}")
+    custom = [rule_from_dict(r) for r in config.get("rules", [])]
+    base = list(DEFAULT_RULES) if mode == "extend" else []
+    return base + custom
 
 
 # --- Rule catalogue ---------------------------------------------------------
@@ -221,6 +274,35 @@ class RiskAnnotator:
 
     def add_rule(self, rule: RiskRule) -> None:
         self.rules.append(rule)
+
+    @classmethod
+    def from_config(cls, config: Dict[str, Any]) -> "RiskAnnotator":
+        """Build an annotator from a parsed config mapping (see ``load_rules_config``)."""
+        return cls(load_rules_config(config))
+
+    @classmethod
+    def from_file(cls, path: Union[str, Path]) -> "RiskAnnotator":
+        """Build an annotator from a JSON or YAML rules file.
+
+        JSON works out of the box (stdlib). YAML (``.yaml``/``.yml``) requires
+        the optional ``pyyaml`` dependency.
+        """
+        path = Path(path)
+        text = path.read_text(encoding="utf-8")
+        if path.suffix.lower() in (".yaml", ".yml"):
+            try:
+                import yaml
+            except ImportError as exc:  # pragma: no cover - depends on env
+                raise ImportError(
+                    "Reading YAML rule files requires PyYAML. Install it with:\n"
+                    '    pip install "precheck-guardian[yaml]"'
+                ) from exc
+            config = yaml.safe_load(text) or {}
+        else:
+            config = json.loads(text)
+        if not isinstance(config, dict):
+            raise ValueError("rules config must be a mapping with a 'rules' key")
+        return cls.from_config(config)
 
     def _haystack(self, step: ActionStep) -> str:
         param_text = " ".join(f"{k} {v}" for k, v in step.tool_params.items())

@@ -1,0 +1,24 @@
+# Custom risk rules for PreCheck Guardian.
+# Load with: RiskAnnotator.from_file("custom_rules.yaml")
+#
+# mode: "extend" (default) appends these to the 75 built-in rules;
+#       "replace" uses ONLY the rules below.
+mode: extend
+
+rules:
+  - name: touches_production
+    pattern: '\b(prod|production)\b'
+    level: critical
+    warning: "Operation targets a production environment."
+    mitigation: "Run against staging first, or get a second approver."
+
+  - name: customer_pii_table
+    pattern: '\b(customers|payments|ssn|credit_card)\b'
+    level: high
+    warning: "Touches a table that may contain customer PII."
+    mitigation: "Confirm the query is compliant with data policy."
+
+  - name: feature_flag_flip
+    pattern: '\bflags?\.(enable|disable|set)\b'
+    level: medium
+    warning: "Changes a feature flag — affects live behaviour."

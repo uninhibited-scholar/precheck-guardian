@@ -26,8 +26,9 @@ rich = ["rich>=13.0"]
 interactive = ["questionary>=1.10"]
 langchain = ["langchain-core>=0.3"]  # Python 3.10+
 tui = ["textual>=0.40"]              # Python 3.9+
-all = ["rich>=13.0", "questionary>=1.10", "textual>=0.40"]
-dev = ["pytest>=7.0", "rich>=13.0", "questionary>=1.10"]
+yaml = ["PyYAML>=5.1"]               # for YAML rule-config files
+all = ["rich>=13.0", "questionary>=1.10", "textual>=0.40", "PyYAML>=5.1"]
+dev = ["pytest>=7.0", "rich>=13.0", "questionary>=1.10", "PyYAML>=5.1"]
 
 [project.urls]
 Homepage = "https://github.com/uninhibited-scholar/precheck-guardian"

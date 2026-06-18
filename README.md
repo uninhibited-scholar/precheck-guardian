@@ -236,6 +236,25 @@ annotator.add_rule(_rule("no_prod", r"\bprod\b", RiskLevel.CRITICAL,
 guard = ApprovalGuard(annotator=annotator)
 ```
 
+Or keep your team's rules in a **YAML/JSON file** (no code changes):
+
+```yaml
+# custom_rules.yaml  —  mode: extend (default) | replace
+rules:
+  - name: touches_production
+    pattern: '\b(prod|production)\b'
+    level: critical
+    warning: "Operation targets a production environment."
+    mitigation: "Run against staging first."
+```
+
+```python
+annotator = RiskAnnotator.from_file("custom_rules.yaml")   # JSON also works
+guard = ApprovalGuard(annotator=annotator)
+```
+
+JSON loads with the stdlib; YAML needs `pip install "precheck-guardian[yaml]"`.
+
 ---
 
 ### Audit log & reporting
