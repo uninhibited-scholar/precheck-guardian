@@ -1,5 +1,7 @@
 # 🛡️ PreCheck Guardian
 
+> *Your agent wants to `rm -rf /`. PreCheck Guardian asks you first.*
+
 **A pre-execution approval gate for AI agents.** Preview the full plan, see the
 risk of every step, then **approve, reject, or edit — before anything runs.**
 
