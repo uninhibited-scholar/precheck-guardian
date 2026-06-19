@@ -4,9 +4,13 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/), and the project adheres to
 [Semantic Versioning](https://semver.org/).
 
-## [Unreleased]
+## [0.2.0] — 2026-06-18
 
 ### Added
+- Audit records now capture **which rules each step matched**
+  (`ActionStep.matched_rules`), surfaced in the JSON-Lines snapshot. The
+  `precheck audit` summary gains a "most-triggered rules" breakdown (via
+  `summarize_records()['top_rules']`) for reviewing and tuning rules over time.
 - `precheck check <files...>` — lint script/SQL/shell files (or stdin via `-`)
   for dangerous lines; flags MEDIUM+ risk with the matched rule names and exits
   non-zero at/above `--fail-on` (default HIGH). Scans multiple files, supports

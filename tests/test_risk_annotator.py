@@ -82,6 +82,19 @@ def test_new_rules(text, expected):
     assert step.risk_level is expected
 
 
+def test_matched_rule_names_recorded():
+    step = RiskAnnotator().annotate_step(make_step("rm -rf / and DROP TABLE t"))
+    assert "rm_recursive_force" in step.matched_rules
+    assert "sql_drop_table" in step.matched_rules
+    # and they survive serialization (for the audit log)
+    assert set(step.to_dict()["matched_rules"]) >= {"rm_recursive_force", "sql_drop_table"}
+
+
+def test_no_match_leaves_matched_rules_empty():
+    step = RiskAnnotator().annotate_step(make_step("think about the problem"))
+    assert step.matched_rules == []
+
+
 def test_custom_rule_can_be_added():
     from approval_hook.core.risk_annotator import _rule
     ann = RiskAnnotator()

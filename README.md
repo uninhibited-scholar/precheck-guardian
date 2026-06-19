@@ -273,7 +273,14 @@ Audit summary — approval_audit.jsonl
   approval rate   : 93%
   by max risk     :
     🟢 low 71   🟡 medium 33   🔴 high 18   ⛔ critical 6
+  most-triggered rules:
+      14×  rm_recursive_force
+       9×  sql_drop_table
+       5×  curl_pipe_shell
 ```
+
+Each decision's snapshot records exactly which rules every step matched, so you
+can review what fires most and tune your ruleset over time.
 
 Or in code: `from approval_hook.audit.logger import summarize_records`.
 

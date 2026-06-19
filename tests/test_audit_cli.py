@@ -34,6 +34,18 @@ def test_summarize_empty():
     stats = summarize_records([])
     assert stats["total"] == 0
     assert stats["approval_rate"] == 0.0
+    assert stats["top_rules"] == []
+
+
+def test_summarize_top_rules_from_snapshots():
+    records = [
+        {"decision": "approve", "max_risk": "critical",
+         "plan_snapshot": {"steps": [{"matched_rules": ["rm_recursive_force", "rm_root"]}]}},
+        {"decision": "reject", "max_risk": "critical",
+         "plan_snapshot": {"steps": [{"matched_rules": ["rm_recursive_force"]}]}},
+    ]
+    stats = summarize_records(records)
+    assert stats["top_rules"][0] == ("rm_recursive_force", 2)
 
 
 def test_audit_cli_reads_real_log(tmp_path, capsys):

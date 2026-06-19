@@ -59,6 +59,8 @@ def test_audit_log_is_written(tmp_path):
     assert rec["decision"] == "approve"
     assert rec["max_risk"] == "critical"
     assert rec["plan_snapshot"]["steps"][0]["risk_level"] == "critical"
+    # matched rule names are recorded for later review/tuning
+    assert "rm_recursive_force" in rec["plan_snapshot"]["steps"][0]["matched_rules"]
 
 
 def test_secrets_are_redacted_in_snapshot(tmp_path):

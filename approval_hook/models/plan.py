@@ -82,6 +82,7 @@ class ActionStep:
     can_be_interrupted: bool = True
     warnings: List[str] = field(default_factory=list)
     mitigations: List[str] = field(default_factory=list)
+    matched_rules: List[str] = field(default_factory=list)
     metadata: Dict[str, Any] = field(default_factory=dict)
 
     def format_params(self) -> str:
@@ -125,6 +126,7 @@ class ActionStep:
             "can_be_interrupted": self.can_be_interrupted,
             "warnings": list(self.warnings),
             "mitigations": list(self.mitigations),
+            "matched_rules": list(self.matched_rules),
         }
 
 

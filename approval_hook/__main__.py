@@ -67,6 +67,10 @@ def cmd_audit(path: str, limit: int) -> int:
         count = stats["by_risk"].get(level, 0)
         if count:
             print(f"    {_RISK_ICON[level]} {level:<8} {count}")
+    if stats.get("top_rules"):
+        print("  most-triggered rules:")
+        for name, hits in stats["top_rules"][:5]:
+            print(f"    {hits:>4}×  {name}")
 
     if limit > 0:
         print(f"\n  last {limit} decisions:")

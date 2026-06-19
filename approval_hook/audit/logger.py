@@ -21,12 +21,21 @@ def summarize_records(records: List[Dict[str, Any]]) -> Dict[str, Any]:
     by_decision = Counter(r.get("decision", "unknown") for r in records)
     by_risk = Counter(r.get("max_risk", "unknown") for r in records)
     approved = by_decision.get("approve", 0)
+
+    rule_hits: Counter = Counter()
+    for r in records:
+        snapshot = r.get("plan_snapshot") or {}
+        for step in snapshot.get("steps", []):
+            for name in step.get("matched_rules", []):
+                rule_hits[name] += 1
+
     return {
         "total": total,
         "by_decision": dict(by_decision),
         "by_risk": dict(by_risk),
         "blocked": by_decision.get("reject", 0),
         "approval_rate": (approved / total) if total else 0.0,
+        "top_rules": rule_hits.most_common(10),
     }
 
 

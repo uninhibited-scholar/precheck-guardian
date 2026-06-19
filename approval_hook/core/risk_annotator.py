@@ -317,6 +317,7 @@ class RiskAnnotator:
         matches = self.matched_rules(step)
         if matches:
             step.risk_level = max(rule.level for rule in matches)
+            step.matched_rules = [rule.name for rule in matches]
             # Preserve order, de-duplicate warnings/mitigations.
             seen_w, seen_m = set(), set()
             for rule in matches:
